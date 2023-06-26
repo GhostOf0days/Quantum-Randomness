@@ -81,12 +81,6 @@ class TrueRandom:
             return sequence[index]
 
     @staticmethod
-    def shuffle(sequence):
-        for i in reversed(range(1, len(sequence))):
-            j = TrueRandom.randint(0, i)
-            sequence[i], sequence[j] = sequence[j], sequence[i]
-
-    @staticmethod
     def uniform(a, b):
         return a + (TrueRandom.random() * (b - a))
 
@@ -99,23 +93,6 @@ class TrueRandom:
         if rem:
             n += 1
         return start + TrueRandom.randint(0, n-1) * step
-
-    @staticmethod
-    def sample(population, k):
-        if isinstance(population, set):
-            population = list(population)
-        n = len(population)
-        if not 0 <= k <= n:
-            raise ValueError("Sample larger than population")
-        result = [None] * k
-        selected = set()
-        for i in range(k):
-            j = TrueRandom.randint(0, n-1)
-            while j in selected:
-                j = TrueRandom.randint(0, n-1)
-            selected.add(j)
-            result[i] = population[j]
-        return result
 
     @staticmethod
     def gauss(mu, sigma):
@@ -300,16 +277,19 @@ class TrueRandom:
     
     @staticmethod
     def shuffle(x, random=None):
-        """Shuffle list x in place, and return None."""
+        """
+        Shuffles a list x in place, using the Fisher-Yates algorithm.
+        :param x: The list to be shuffled.
+        :param random: An optional custom random number generator function.
+                    If None, the default random number generator will be used.
+        """
         if random is None:
             randbelow = TrueRandom._randbelow
         else:
-            _int = int
-            randbelow = lambda n: _int(random() * n)
+            randbelow = random
         n = len(x)
         for i in reversed(range(1, n)):
-            # pick an element in x[:i+1] with which to exchange x[i]
-            j = randbelow(i+1)
+            j = randbelow(i + 1)
             x[i], x[j] = x[j], x[i]
     
     @staticmethod
