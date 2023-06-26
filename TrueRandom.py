@@ -219,43 +219,28 @@ class TrueRandom:
         return successes
     
     @staticmethod
-    def weibullvariate(alpha, beta):
-        """Weibull distribution."""
-        if alpha <= 0 or beta <= 0:
-            raise ValueError("weibullvariate: alpha and beta must be > 0")
-        u = TrueRandom.random()
-        return alpha * (-math.log(u))**(1.0/beta)
-
-    @staticmethod
-    def lognormvariate(mu, sigma):
-        """Log normal distribution."""
-        if sigma <= 0:
-            raise ValueError("lognormvariate: sigma must be > 0")
-        return math.exp(mu + sigma * TrueRandom.gauss(0, 1))
-
-    @staticmethod
-    def binomial(n, p):
-        """Binomial distribution."""
-        if not (0 < p < 1):
-            raise ValueError("binomial: p must be in the range 0 < p < 1")
-        if n <= 0:
-            raise ValueError("binomial: n must be > 0")
-        
-        successes = 0
-        for _ in range(n):
-            if TrueRandom.random() < p:
-                successes += 1
-        return successes
+    def getstate():
+        """
+        Dummy method to maintain compatibility with the random module.
+        Returns None as no state is maintained in the quantum approach.
+        """
+        return None
     
     @staticmethod
-    def getstate():
-        """Dummy method to maintain compatibility with random module"""
+    def setstate(state):
+        """
+        Dummy method to maintain compatibility with the random module.
+        No state is maintained in the quantum approach, so the method does nothing.
+        """
         return None
 
     @staticmethod
     def seed(a=None, version=2):
-        """Dummy method to maintain compatibility with random module"""
-        pass
+        """
+        Dummy method to maintain compatibility with the random module.
+        No seed value is required in the quantum approach, so the method does nothing.
+        """
+        return None
     
     @staticmethod
     def choices(population, weights=None, *, cum_weights=None, k=1):
@@ -334,3 +319,17 @@ class TrueRandom:
     def _randbelow(n):
         """Helper function for the shuffle and sample methods."""
         return int(TrueRandom.random() * n)
+    
+    @staticmethod
+    def getrandbits(k):
+        """Returns a non-negative integer with k random bits."""
+        if k <= 0:
+            raise ValueError("Number of bits must be greater than zero")
+        
+        num_bytes = math.ceil(k / 8)
+        random_bytes = bytearray(TrueRandom.get_true_random_numbers(num_bytes))
+        num_bits = k % 8
+        if num_bits > 0:
+            last_byte = random_bytes[-1] >> (8 - num_bits)
+            random_bytes[-1] = last_byte << (8 - num_bits)
+        return int.from_bytes(random_bytes, 'big')
